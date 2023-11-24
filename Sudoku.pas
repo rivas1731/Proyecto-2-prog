@@ -1,53 +1,120 @@
 program sudoku;
 uses crt;
 const
-	N = 9;
-	pistas_m = 51;
+	N = 9;//constante para numero ramdom
+	pistas_m = 51;//constante para las pistas a ocultar
 type
 	matriz= array[1..9,1..9] of integer;
 	cuadrante= array [1..3,1..3] of integer;
 var 
-	opc, i, j, f, c, val_int, v: integer;
-	tablero, tablero_u: matriz;
-	val_str, opc_u: string;
-	n_val, validar_n, validar_c, esCorrecto, completo, Result: boolean;
+	opc, i, f, c, val_int, v: integer;
+	tablero, tablero_u, pistas_i: matriz;
+	val_str, opc_u, opc_salir: string;
+	n_val, validar_n, validar_c, fin, usuario_se_rinde: boolean;
 	
-	procedure tablero_usuario(arreglo:matriz);//para mostrar el tablero
-	begin//del rpocedimiento
-		writeln('Se muestra tablero a continuacion');
-		writeln();
-		textcolor(15);
-		writeln('----------------------');
-		
-		for i:= 1 to 9 do
-		begin//del for i
-			textcolor(9);
-			write('|');
-			for j:= 1 to 9 do 
-			begin//del for j
-				if arreglo[i,j] = 0 then
-				begin
-					write('  ');
-				end
-				else
-				begin
-					textcolor(15);
-					write(arreglo[i,j], ' ');
-				end;
-				if (j mod 3 = 0) then
-				begin
-					textcolor(15);
-					write('|');
-				end;
-			end;//del for j
-			writeln();
-			textcolor(9);
-			if (i mod 3 = 0 ) then
-				textcolor(15);
-				writeln('----------------------');
-		end;//del for i
-	end;//del rpocedimiento
-	
+procedure tablero_usuario(tablero_u: matriz; tablero: matriz; pistas_i: matriz);
+var
+  i, j, k: integer;
+  hayError: boolean;
+
+  validar_n: boolean;
+begin
+  writeln('Asi va el tablero.');
+  writeln();
+  textcolor(15);
+  writeln('   1 2 3  4 5 6  7 8 9');  // Imprime los números de las columnas
+  writeln('  ----------------------');
+
+  for i:= 1 to 9 do//para recorrer y mostrar el tablero
+  begin
+    textcolor(9);
+    write(i, ' ');  // Imprime el número de la fila
+    write('|');
+    for j:= 1 to 9 do 
+    begin
+      if tablero_u[i,j] = 0 then//en lugar de 0 escribe un espacio en blanco
+      begin
+        write('  ');
+      end
+      else
+      begin
+        if pistas_i[i,j] <> 0 then
+          textcolor(10)  // Cambia el color a verde si la celda contiene una pista
+        else if tablero_u[i,j] <> tablero[i,j] then
+        begin
+          textbackground(12);  // Cambia el color a rojo si el valor es incorrecto
+          textcolor(15);  // Cambia el color a blanco
+        end
+        else
+          textcolor(15);  // Cambia el color a blanco para los otros números
+
+        write(tablero_u[i,j], ' ');
+      end;
+      if (j mod 3 = 0) then//cada que pasen 3 posiciones imprime una barra para separar cuadrantes
+      begin
+        textcolor(15);
+        write('|');
+      end;
+      textbackground(black);
+    end;
+    writeln();
+    textcolor(9);
+    if (i mod 3 = 0 ) then//igual pero en las filas
+      textcolor(15);
+      writeln('  ----------------------');
+  end;
+  hayError := false;
+  for i := 1 to 9 do//para mostrar la opcion de rendirse solo cuando haya error en el tablero
+  begin
+    for j := 1 to 9 do
+    begin
+      if (tablero_u[i,j] <> 0) and (tablero_u[i,j] <> tablero[i,j]) then
+      begin
+        hayError := true;
+        break;
+      end;
+    end;
+    if hayError then break;
+  end;
+
+  // Si hay un error, muestra el mensaje
+  if hayError then
+  begin
+    repeat
+      writeln('Desea rendirse?');
+      writeln('1. Si');
+      writeln('2. No');
+      readln(opc_salir);
+
+      validar_n := false;
+      for k := 1 to Length(opc_salir) do  // For para verificar que el valor ingresado sea un número
+      begin
+        if not (opc_salir[k] in ['0'..'9']) then
+        begin
+          validar_n := true;
+          break;
+        end;
+      end;
+      if validar_n then
+      begin
+		ClrScr;
+        writeln('La opcion ingresada no es valida, por favo ingrese una opcion valida.');
+        writeln('Presione enter para continuar');
+        readln();
+      end;
+    until not validar_n;
+    if (opc_salir < '1') or (opc_salir > '2') then
+    begin
+		ClrScr;
+		writeln('La opcion seleccionada no es valida. Por favor ingrese una opcion valida');
+		writeln('Presione enter para continuar');
+        readln();
+    end
+    else if (opc_salir = '1') then
+	usuario_se_rinde := true;
+  end;
+end;
+
 	
 	procedure tableros_resueltos;//para rellenar los tableros
 	begin//del rpocedimiento
@@ -140,88 +207,8 @@ var
 			tablero[9,7]:= 5;
 			tablero[9,8]:= 9;
 			tablero[9,9]:= 2;
-			//rellenando tablero del usuario
-			tablero_u[1,1]:= 3;
-			tablero_u[1,2]:= 9;
-			tablero_u[1,3]:= 8;
-			tablero_u[1,4]:= 1;
-			tablero_u[1,5]:= 5;
-			tablero_u[1,6]:= 2;
-			tablero_u[1,7]:= 6;
-			tablero_u[1,8]:= 4;
-			tablero_u[1,9]:= 7;
-			tablero_u[2,1]:= 2;
-			tablero_u[2,2]:= 1;
-			tablero_u[2,3]:= 4;
-			tablero_u[2,4]:= 8;
-			tablero_u[2,5]:= 6;
-			tablero_u[2,6]:= 7;
-			tablero_u[2,7]:= 9;
-			tablero_u[2,8]:= 5;
-			tablero_u[2,9]:= 3;
-			tablero_u[3,1]:= 7;
-			tablero_u[3,2]:= 6;
-			tablero_u[3,3]:= 5;
-			tablero_u[3,4]:= 4;
-			tablero_u[3,5]:= 9;
-			tablero_u[3,6]:= 3;
-			tablero_u[3,7]:= 1;
-			tablero_u[3,8]:= 2;
-			tablero_u[3,9]:= 8;
-			tablero_u[4,1]:= 1;
-			tablero_u[4,2]:= 3;
-			tablero_u[4,3]:= 9;
-			tablero_u[4,4]:= 7;
-			tablero_u[4,5]:= 2;
-			tablero_u[4,6]:= 8;
-			tablero_u[4,7]:= 4;
-			tablero_u[4,8]:= 6;
-			tablero_u[4,9]:= 5;
-			tablero_u[5,1]:= 4;
-			tablero_u[5,2]:= 8;
-			tablero_u[5,3]:= 6;
-			tablero_u[5,4]:= 5;
-			tablero_u[5,5]:= 3;
-			tablero_u[5,6]:= 9;
-			tablero_u[5,7]:= 2;
-			tablero_u[5,8]:= 7;
-			tablero_u[5,9]:= 1;
-			tablero_u[6,1]:= 5;
-			tablero_u[6,2]:= 7;
-			tablero_u[6,3]:= 2;
-			tablero_u[6,4]:= 6;
-			tablero_u[6,5]:= 4;
-			tablero_u[6,6]:= 1;
-			tablero_u[6,7]:= 3;
-			tablero_u[6,8]:= 8;
-			tablero_u[6,9]:= 9;
-			tablero_u[7,1]:= 6;
-			tablero_u[7,2]:= 2;
-			tablero_u[7,3]:= 1;
-			tablero_u[7,4]:= 9;
-			tablero_u[7,5]:= 8;
-			tablero_u[7,6]:= 5;
-			tablero_u[7,7]:= 7;
-			tablero_u[7,8]:= 3;
-			tablero_u[7,9]:= 4;
-			tablero_u[8,1]:= 9;
-			tablero_u[8,2]:= 5;
-			tablero_u[8,3]:= 3;
-			tablero_u[8,4]:= 2;
-			tablero_u[8,5]:= 7;
-			tablero_u[8,6]:= 4;
-			tablero_u[8,7]:= 8;
-			tablero_u[8,8]:= 1;
-			tablero_u[8,9]:= 6;
-			tablero_u[9,1]:= 8;
-			tablero_u[9,2]:= 4;
-			tablero_u[9,3]:= 7;
-			tablero_u[9,4]:= 3;
-			tablero_u[9,5]:= 1;
-			tablero_u[9,6]:= 6;
-			tablero_u[9,7]:= 5;
-			tablero_u[9,8]:= 9;
-			tablero_u[9,9]:= 2;
+
+
 		end;//opc 1 case
 		
 		2:
@@ -308,87 +295,6 @@ var
 			tablero[9,8]:= 5;
 			tablero[9,9]:= 6;
 			
-			tablero_u[1,1]:= 1;
-			tablero_u[1,2]:= 3;
-			tablero_u[1,3]:= 6;
-			tablero_u[1,4]:= 4;
-			tablero_u[1,5]:= 9;
-			tablero_u[1,6]:= 2;
-			tablero_u[1,7]:= 5;
-			tablero_u[1,8]:= 8;
-			tablero_u[1,9]:= 7;
-			tablero_u[2,1]:= 5;
-			tablero_u[2,2]:= 9;
-			tablero_u[2,3]:= 4;
-			tablero_u[2,4]:= 7;
-			tablero_u[2,5]:= 6;
-			tablero_u[2,6]:= 8;
-			tablero_u[2,7]:= 1;
-			tablero_u[2,8]:= 3;
-			tablero_u[2,9]:= 2;
-			tablero_u[3,1]:= 7;
-			tablero_u[3,2]:= 2;
-			tablero_u[3,3]:= 8;
-			tablero_u[3,4]:= 3;
-			tablero_u[3,5]:= 1;
-			tablero_u[3,6]:= 5;
-			tablero_u[3,7]:= 9;
-			tablero_u[3,8]:= 6;
-			tablero_u[3,9]:= 4;
-			tablero_u[4,1]:= 8;
-			tablero_u[4,2]:= 6;
-			tablero_u[4,3]:= 1;
-			tablero_u[4,4]:= 5;
-			tablero_u[4,5]:= 7;
-			tablero_u[4,6]:= 4;
-			tablero_u[4,7]:= 2;
-			tablero_u[4,8]:= 9;
-			tablero_u[4,9]:= 3;
-			tablero_u[5,1]:= 2;
-			tablero_u[5,2]:= 7;
-			tablero_u[5,3]:= 5;
-			tablero_u[5,4]:= 9;
-			tablero_u[5,5]:= 3;
-			tablero_u[5,6]:= 1;
-			tablero_u[5,7]:= 6;
-			tablero_u[5,8]:= 4;
-			tablero_u[5,9]:= 8;
-			tablero_u[6,1]:= 3;
-			tablero_u[6,2]:= 4;
-			tablero_u[6,3]:= 9;
-			tablero_u[6,4]:= 2;
-			tablero_u[6,5]:= 8;
-			tablero_u[6,6]:= 6;
-			tablero_u[6,7]:= 7;
-			tablero_u[6,8]:= 1;
-			tablero_u[6,9]:= 5;
-			tablero_u[7,1]:= 6;
-			tablero_u[7,2]:= 5;
-			tablero_u[7,3]:= 7;
-			tablero_u[7,4]:= 1;
-			tablero_u[7,5]:= 4;
-			tablero_u[7,6]:= 3;
-			tablero_u[7,7]:= 8;
-			tablero_u[7,8]:= 2;
-			tablero_u[7,9]:= 9;
-			tablero_u[8,1]:= 4;
-			tablero_u[8,2]:= 8;
-			tablero_u[8,3]:= 2;
-			tablero_u[8,4]:= 6;
-			tablero_u[8,5]:= 5;
-			tablero_u[8,6]:= 9;
-			tablero_u[8,7]:= 3;
-			tablero_u[8,8]:= 7;
-			tablero_u[8,9]:= 1;
-			tablero_u[9,1]:= 9;
-			tablero_u[9,2]:= 1;
-			tablero_u[9,3]:= 3;
-			tablero_u[9,4]:= 8;
-			tablero_u[9,5]:= 2;
-			tablero_u[9,6]:= 7;
-			tablero_u[9,7]:= 4;
-			tablero_u[9,8]:= 5;
-			tablero_u[9,9]:= 6;
 		end;//opc 2 case
 		
 		3:
@@ -475,87 +381,6 @@ var
 			tablero[9,8]:= 5;
 			tablero[9,9]:= 6;
 			
-			tablero_u[1,1]:= 2;
-			tablero_u[1,2]:= 1;
-			tablero_u[1,3]:= 9;
-			tablero_u[1,4]:= 5;
-			tablero_u[1,5]:= 4;
-			tablero_u[1,6]:= 3;
-			tablero_u[1,7]:= 6;
-			tablero_u[1,8]:= 7;
-			tablero_u[1,9]:= 8;
-			tablero_u[2,1]:= 5;
-			tablero_u[2,2]:= 4;
-			tablero_u[2,3]:= 3;
-			tablero_u[2,4]:= 8;
-			tablero_u[2,5]:= 7;
-			tablero_u[2,6]:= 6;
-			tablero_u[2,7]:= 9;
-			tablero_u[2,8]:= 1;
-			tablero_u[2,9]:= 2;
-			tablero_u[3,1]:= 8;
-			tablero_u[3,2]:= 7;
-			tablero_u[3,3]:= 6;
-			tablero_u[3,4]:= 2;
-			tablero_u[3,5]:= 1;
-			tablero_u[3,6]:= 9;
-			tablero_u[3,7]:= 3;
-			tablero_u[3,8]:= 4;
-			tablero_u[3,9]:= 5;
-			tablero_u[4,1]:= 4;
-			tablero_u[4,2]:= 3;
-			tablero_u[4,3]:= 2;
-			tablero_u[4,4]:= 7;
-			tablero_u[4,5]:= 6;
-			tablero_u[4,6]:= 5;
-			tablero_u[4,7]:= 8;
-			tablero_u[4,8]:= 9;
-			tablero_u[4,9]:= 1;
-			tablero_u[5,1]:= 7;
-			tablero_u[5,2]:= 6;
-			tablero_u[5,3]:= 5;
-			tablero_u[5,4]:= 1;
-			tablero_u[5,5]:= 9;
-			tablero_u[5,6]:= 8;
-			tablero_u[5,7]:= 2;
-			tablero_u[5,8]:= 3;
-			tablero_u[5,9]:= 4;
-			tablero_u[6,1]:= 1;
-			tablero_u[6,2]:= 9;
-			tablero_u[6,3]:= 8;
-			tablero_u[6,4]:= 4;
-			tablero_u[6,5]:= 3;
-			tablero_u[6,6]:= 2;
-			tablero_u[6,7]:= 5;
-			tablero_u[6,8]:= 6;
-			tablero_u[6,9]:= 7;
-			tablero_u[7,1]:= 3;
-			tablero_u[7,2]:= 2;
-			tablero_u[7,3]:= 1;
-			tablero_u[7,4]:= 6;
-			tablero_u[7,5]:= 5;
-			tablero_u[7,6]:= 4;
-			tablero_u[7,7]:= 7;
-			tablero_u[7,8]:= 8;
-			tablero_u[7,9]:= 9;
-			tablero_u[8,1]:= 6;
-			tablero_u[8,2]:= 5;
-			tablero_u[8,3]:= 4;
-			tablero_u[8,4]:= 9;
-			tablero_u[8,5]:= 8;
-			tablero_u[8,6]:= 7;
-			tablero_u[8,7]:= 1;
-			tablero_u[8,8]:= 2;
-			tablero_u[8,9]:= 3;
-			tablero_u[9,1]:= 9;
-			tablero_u[9,2]:= 8;
-			tablero_u[9,3]:= 7;
-			tablero_u[9,4]:= 3;
-			tablero_u[9,5]:= 2;
-			tablero_u[9,6]:= 1;
-			tablero_u[9,7]:= 4;
-			tablero_u[9,8]:= 5;
-			tablero_u[9,9]:= 6;
 		end;//opc 3 case
 		
 		4: 
@@ -642,87 +467,6 @@ var
 			tablero[9,8]:= 4;
 			tablero[9,9]:= 9;
 			
-			tablero_u[1,1]:= 7;
-			tablero_u[1,2]:= 6;
-			tablero_u[1,3]:= 1;
-			tablero_u[1,4]:= 3;
-			tablero_u[1,5]:= 4;
-			tablero_u[1,6]:= 9;
-			tablero_u[1,7]:= 8;
-			tablero_u[1,8]:= 2;
-			tablero_u[1,9]:= 5;
-			tablero_u[2,1]:= 3;
-			tablero_u[2,2]:= 8;
-			tablero_u[2,3]:= 2;
-			tablero_u[2,4]:= 7;
-			tablero_u[2,5]:= 5;
-			tablero_u[2,6]:= 1;
-			tablero_u[2,7]:= 6;
-			tablero_u[2,8]:= 9;
-			tablero_u[2,9]:= 4;
-			tablero_u[3,1]:= 5;
-			tablero_u[3,2]:= 9;
-			tablero_u[3,3]:= 4;
-			tablero_u[3,4]:= 2;
-			tablero_u[3,5]:= 8;
-			tablero_u[3,6]:= 6;
-			tablero_u[3,7]:= 7;
-			tablero_u[3,8]:= 3;
-			tablero_u[3,9]:= 1;
-			tablero_u[4,1]:= 6;
-			tablero_u[4,2]:= 2;
-			tablero_u[4,3]:= 5;
-			tablero_u[4,4]:= 9;
-			tablero_u[4,5]:= 7;
-			tablero_u[4,6]:= 3;
-			tablero_u[4,7]:= 4;
-			tablero_u[4,8]:= 1;
-			tablero_u[4,9]:= 8;
-			tablero_u[5,1]:= 8;
-			tablero_u[5,2]:= 3;
-			tablero_u[5,3]:= 7;
-			tablero_u[5,4]:= 6;
-			tablero_u[5,5]:= 1;
-			tablero_u[5,6]:= 4;
-			tablero_u[5,7]:= 9;
-			tablero_u[5,8]:= 5;
-			tablero_u[5,9]:= 2;
-			tablero_u[6,1]:= 4;
-			tablero_u[6,2]:= 1;
-			tablero_u[6,3]:= 9;
-			tablero_u[6,4]:= 5;
-			tablero_u[6,5]:= 2;
-			tablero_u[6,6]:= 8;
-			tablero_u[6,7]:= 3;
-			tablero_u[6,8]:= 7;
-			tablero_u[6,9]:= 6;
-			tablero_u[7,1]:= 9;
-			tablero_u[7,2]:= 4;
-			tablero_u[7,3]:= 3;
-			tablero_u[7,4]:= 1;
-			tablero_u[7,5]:= 6;
-			tablero_u[7,6]:= 5;
-			tablero_u[7,7]:= 2;
-			tablero_u[7,8]:= 8;
-			tablero_u[7,9]:= 7;
-			tablero_u[8,1]:= 2;
-			tablero_u[8,2]:= 5;
-			tablero_u[8,3]:= 8;
-			tablero_u[8,4]:= 4;
-			tablero_u[8,5]:= 9;
-			tablero_u[8,6]:= 7;
-			tablero_u[8,7]:= 1;
-			tablero_u[8,8]:= 6;
-			tablero_u[8,9]:= 3;
-			tablero_u[9,1]:= 1;
-			tablero_u[9,2]:= 7;
-			tablero_u[9,3]:= 6;
-			tablero_u[9,4]:= 8;
-			tablero_u[9,5]:= 3;
-			tablero_u[9,6]:= 2;
-			tablero_u[9,7]:= 5;
-			tablero_u[9,8]:= 4;
-			tablero_u[9,9]:= 9;
 		end;//opc 4 case
 		
 		5:
@@ -809,119 +553,41 @@ var
 			tablero[9,8]:= 7;
 			tablero[9,9]:= 9;
 			
-			tablero_u[1,1]:= 4;
-			tablero_u[1,2]:= 6;
-			tablero_u[1,3]:= 2;
-			tablero_u[1,4]:= 5;
-			tablero_u[1,5]:= 9;
-			tablero_u[1,6]:= 1;
-			tablero_u[1,7]:= 3;
-			tablero_u[1,8]:= 8;
-			tablero_u[1,9]:= 7;
-			tablero_u[2,1]:= 1;
-			tablero_u[2,2]:= 3;
-			tablero_u[2,3]:= 9;
-			tablero_u[2,4]:= 6;
-			tablero_u[2,5]:= 8;
-			tablero_u[2,6]:= 7;
-			tablero_u[2,7]:= 4;
-			tablero_u[2,8]:= 2;
-			tablero_u[2,9]:= 5;
-			tablero_u[3,1]:= 7;
-			tablero_u[3,2]:= 5;
-			tablero_u[3,3]:= 8;
-			tablero_u[3,4]:= 3;
-			tablero_u[3,5]:= 4;
-			tablero_u[3,6]:= 2;
-			tablero_u[3,7]:= 1;
-			tablero_u[3,8]:= 9;
-			tablero_u[3,9]:= 6;
-			tablero_u[4,1]:= 6;
-			tablero_u[4,2]:= 9;
-			tablero_u[4,3]:= 1;
-			tablero_u[4,4]:= 7;
-			tablero_u[4,5]:= 3;
-			tablero_u[4,6]:= 8;
-			tablero_u[4,7]:= 2;
-			tablero_u[4,8]:= 5;
-			tablero_u[4,9]:= 4;
-			tablero_u[5,1]:= 5;
-			tablero_u[5,2]:= 2;
-			tablero_u[5,3]:= 3;
-			tablero_u[5,4]:= 9;
-			tablero_u[5,5]:= 6;
-			tablero_u[5,6]:= 4;
-			tablero_u[5,7]:= 7;
-			tablero_u[5,8]:= 1;
-			tablero_u[5,9]:= 8;
-			tablero_u[6,1]:= 8;
-			tablero_u[6,2]:= 7;
-			tablero_u[6,3]:= 4;
-			tablero_u[6,4]:= 2;
-			tablero_u[6,5]:= 1;
-			tablero_u[6,6]:= 5;
-			tablero_u[6,7]:= 9;
-			tablero_u[6,8]:= 6;
-			tablero_u[6,9]:= 3;
-			tablero_u[7,1]:= 9;
-			tablero_u[7,2]:= 8;
-			tablero_u[7,3]:= 7;
-			tablero_u[7,4]:= 4;
-			tablero_u[7,5]:= 2;
-			tablero_u[7,6]:= 6;
-			tablero_u[7,7]:= 5;
-			tablero_u[7,8]:= 3;
-			tablero_u[7,9]:= 1;
-			tablero_u[8,1]:= 3;
-			tablero_u[8,2]:= 1;
-			tablero_u[8,3]:= 5;
-			tablero_u[8,4]:= 8;
-			tablero_u[8,5]:= 7;
-			tablero_u[8,6]:= 9;
-			tablero_u[8,7]:= 6;
-			tablero_u[8,8]:= 4;
-			tablero_u[8,9]:= 2;
-			tablero_u[9,1]:= 2;
-			tablero_u[9,2]:= 4;
-			tablero_u[9,3]:= 6;
-			tablero_u[9,4]:= 1;
-			tablero_u[9,5]:= 5;
-			tablero_u[9,6]:= 3;
-			tablero_u[9,7]:= 8;
-			tablero_u[9,8]:= 7;
-			tablero_u[9,9]:= 9;
 		end;//opc 5 case
 		
 		
-	end;//case
+		end;//case
 	end;//del procedimiento
 
-	procedure pistas;//para mostrar pistas de forma aleatoria
+	procedure Pistas(tablero: matriz; var tablero_u: matriz);//para generar las posiciones aleatorias de las pistas en el tablero
 	var
 		contador, fila, columna: Integer;
 	begin
-		// Inicializa el contador y oculta pistas aleatorias
+		// Inicializa el contador y las pistas
 		contador := 0;
+		pistas_i := tablero;  // Copia el tablero a las pistas el cual se usa para guardar pistas iniciales y no confundir con numeros ingresados
+		tablero_u := tablero;  // Copia el tablero al tablero del usuario
 		Randomize;
 
-		while contador < pistas_m do
+		while contador < pistas_m do//hace el procedimiento mientras que el contador sea menor al numero de pistas a ocultar
 		begin
 			fila := Random(N) + 1;
 			columna := Random(N) + 1;
-	
-			if tablero_u[fila, columna] <> 0 then
+
+			if pistas_i[fila, columna] <> 0 then
 			begin
-				tablero_u[fila, columna] := 0;
+				pistas_i[fila, columna] := 0;
+				tablero_u[fila, columna] := 0;  // Oculta la misma celda en el tablero del usuario
 				Inc(contador);
 			end;
 		end;
-	end;
+	end;//del procedimiento
 
 	procedure fila_columna;//para pedirle al usuario en cual fila y columna ingresara el numero.
 	begin
 	repeat//para validar que es un entero
 	repeat//para validar que este entre 1 y 9
-		writeln('Ingrese la fila en la cual desea posicionar su numero 1-9: ');
+		write('Ingrese la fila en la cual desea posicionar su numero 1-9: ');
 		readln(val_str);
 
 		n_val := true;
@@ -930,6 +596,8 @@ var
         if val_int <> 0 then
         begin
             writeln('La entrada no es un numero entero. Por favor, intenta de nuevo.');
+			writeln('Presione enter para continuar...');
+            readln();
             n_val := false; // Establecer n_val en falso para repetir el bucle
         end;
     until n_val;
@@ -937,12 +605,14 @@ var
     if (f < 1) or (f > 9) then
 	begin
 		writeln('La fila seleccionada no es valida. Por favor ingrese una fila valida');
+		writeln('Presione enter para continuar...');
+            readln();
 	end;//del if.
 	until (f >= 1) and (f <= 9);
    
     repeat//para validar que es un entero
     repeat//para validar que ente entre 1 y 9
-		writeln('Ingrese la columna en la cual desea posicionar su numero 1-9: ');
+		write('Ingrese la columna en la cual desea posicionar su numero 1-9: ');
 		readln(val_str);
 
 		n_val := true;
@@ -951,12 +621,16 @@ var
         if val_int <> 0 then
         begin
             writeln('La entrada no es un numero entero. Por favor, intenta de nuevo.');
+            writeln('Presione enter para continuar...');
+            readln();
             n_val := false; // Establecer n_val en falso para repetir el bucle
         end;
     until n_val;
     if (c < 1) or (c > 9) then
 	begin
 		writeln('La columna seleccionada no es valida. Por favor ingrese una columna valida');
+		writeln('Presione enter para continuar...');
+            readln();
 	end;//del if.
 	until (c >= 1) and (c <= 9);
 	
@@ -977,33 +651,48 @@ var
 			validar:=true;
 	end;//de la funcion
 	
-	procedure menu;
+	procedure menu;//para mostrar un menu
 	begin
-		writeln('--------------------');
+		ClrScr;
+		writeln('|------------------|');
+		writeln('|-------Menu-------|');
+		writeln('|------------------|');
 		writeln('|1. Iniciar juego  |');
+		writeln('|                  |');
 		writeln('|2. Salir          |');
-		writeln('--------------------');
+		writeln('|------------------|');
 	end;//del procedimiento	
 	
-	procedure reglas;
+	procedure reglas;//para mostrar reglas de juego
 	begin
-		writeln('Bienvenido al RoJeDoku, a continuacion las reglas:');
-		writeln('- Al iniciar, vera un tablero en pantalla con pistas las cuales utilizara para resolver el sudoku.');
-		writeln('- No puede ingresar un numero en donde se encuentre una pista.');
-		writeln('- El numero que ingrese no se podra repetir ni en la columna, fila, ni cuadrante del bloque en donde se ubique.');
-		writeln('- Si el numero ingresado no va en esa posicion, se marcara rojo y debera cambiarlo.');
-		writeln('Que disfrute el juego!!!!');
+		ClrScr;
+		writeln('|---------------------------------------------------------------------------------------------------------------|');
+		writeln('|-----------------------------------------------------Reglas----------------------------------------------------|');
+		writeln('|---------------------------------------------------------------------------------------------------------------|');
+		writeln('|- Al iniciar, vera un tablero en pantalla con pistas (verdes) las cuales utilizara para resolver el sudoku.    |');
+		writeln('|                                                                                                               |');
+		writeln('|- No puede ingresar un numero en donde se encuentre una pista.                                                 |');
+		writeln('|                                                                                                               |');
+		writeln('|- El numero que ingrese no se podra repetir ni en la columna, fila, ni cuadrante del bloque en donde se ubique.|');
+		writeln('|                                                                                                               |');
+		writeln('|- Si el numero ingresado no va en esa posicion, se marcara rojo y debera cambiarlo.                            |');
+		writeln('|                                                                                                               |');
+		writeln('|Que disfrute el juego!!!!                                                                                      |');
+		writeln('|---------------------------------------------------------------------------------------------------------------|');
 		writeln();
 		writeln('Presione la tecla enter para continuar...');
 		readln();
 	end;//procedure
 	
-	function validar_cant(a,x,y: string): boolean;//valida que un numero ingresado este dentro del rango
+	function validar_cant(a,menor,mayor: string): boolean;//valida que un numero ingresado este dentro del rango
 	begin
 		validar_c:= true;
-		if (a < x) or (a > y) then
+		if (a < menor) or (a > mayor) then
 		begin
+			ClrScr;
 			writeln('La opcion seleccionada no es valida. Por favor ingrese una opcion valida');
+			writeln('Presione enter para continuar...');
+            readln();
 			validar_c:= false;
 		end;//del if.
 		validar_cant:= true;
@@ -1013,7 +702,7 @@ var
 	begin
 		repeat//para validar que es un entero
 		repeat//para validar que este entre 1 y 9
-		writeln('Ingrese el numero que desea agregar al tablero');
+		write('Ingrese el numero que desea agregar al tablero: ');
 		readln(val_str);
 
 		n_val := true;
@@ -1022,102 +711,139 @@ var
         if val_int <> 0 then
         begin
             writeln('La entrada no es un numero entero. Por favor, intenta de nuevo.');
+            writeln('Presione enter para continuar...');
+            readln();
             n_val := false; // Establecer n_val en falso para repetir el bucle
         end;
-    until n_val;
+    until n_val;//hasta que n_val verdadero
     
     if (v < 1) or (v > 9) then
 	begin
 		writeln('El numero ingresado no es valido, por favor ingrese un numero valido.');
+		writeln('Presione enter para continuar...');
+            readln();
 	end;//del if.
-	until (v >= 1) and (v <= 9);
 	
-	tablero_u[f,c]:= v;
-		
-		
+	if pistas_i[f][c] <> 0 then
+	begin
+		ClrScr;
+		writeln('En esta casilla no puede ingresar números porque hay una pista, intente en una casilla diferente.');
+		writeln('Presione enter para continuar...');
+            readln();
+		exit;  // Sale del procedimiento sin actualizar el tablero del usuario
+	end;
+	until (v >= 1) and (v <= 9);
+		tablero_u[f][c] := v;  // Actualiza el tablero del usuario con el valor ingresado
 	end;//del procedimiento
 	
-	
-	
-	function CompararTableros(var tablero, tablero_u: matriz): boolean;
+	function TableroCompleto(tablero_u: matriz): boolean;//para verificar que el tablero del usuario esta completo y sin errores
 	var
-	i, j: integer;
+		i, j: integer;
 	begin
-		Result := true;
-		for i := Low(tablero) to High(tablero) do
+		for i := 1 to 9 do
 		begin
-			for j := Low(tablero[i]) to High(tablero[i]) do
+			for j := 1 to 9 do
 			begin
-				if tablero_u[i, j] <> tablero[i, j] then
+				if tablero_u[i][j] = 0 then
 				begin
-					Result := false;
-					exit;
+					TableroCompleto := false;
+					exit;  // Sale de la función si encuentra una celda vacía
 				end;
 			end;
 		end;
+		TableroCompleto := true;  // Retorna verdadero si no encuentra ninguna celda vacía
 	end;
 	
-	
-	
-	
-	function EstaCompleto(var tablero_u: matriz): boolean;
+	procedure Datos_usuario;//para pedir los datos del usuario
 	var
-	i, j: integer;
-	
+		Nick,nombre: string;
+		validacion_n: boolean;
 	begin
-		for i := Low(tablero_u) to High(tablero_u) do
+		ClrScr;
+		repeat
+		write('Primero ingrese su nombre: ');
+		readln(nombre);
+		writeln;
+		write('Para continuar ingrese su Nikname de jugador: ');
+		readln(Nick);
+		validacion_n := false; 
+
+		// Verificar si el nombre y apellido contienen números
+		for i := 1 to Length(nombre) do
 		begin
-			for j := Low(tablero_u[i]) to High(tablero_u[i]) do
+			if (not (nombre[i] in ['A'..'Z', 'a'..'z', ' '])) then
 			begin
-			if tablero_u[i, j] = 0 then
-			begin
-				Result := false;
-				exit;
+				validacion_n := true;
+				break;
 			end;
 		end;
+	
+		if  validacion_n then//si hay numeros se muestra el mensaje
+		begin
+			ClrScr;
+			writeln('El nombre no pueden contener numeros, ingrese un nombre valido.');
+			writeln('Presione enter para continuar...');
+            readln();
+		end;
+	
+		until not validacion_n;
+		ClrScr;
+		writeln('Bienvenido al RoJeDoku,', Nick, ' a continuacion las reglas:');
+		writeln;
+		writeln('Presione la tecla enter para continuar...');
+		readln();
+	
 	end;
-	Result := true;
-	end;
 	
 	
-	
-	
-	
-	
-	
-	
-begin//principal
-	repeat
-	repeat
+begin
+	usuario_se_rinde := false;
+	tableros_resueltos;//se rellena el tablero
+	Pistas(tablero,tablero_u);//se muestran pistas en tablero
+	repeat//para validar que es un numero
+		repeat//para validar que este en el rango permitido
 		menu;//se muestra menu.
 		readln(opc_u);//para la opcion que desee el usuario.
 		validar(opc_u);//se llama a la funcion para validar que sea un numero.
 		if validar_n then
 		begin
 			writeln('La opcion ingresada no es valida, por favo ingrese una opcion valida.');
+			writeln('Presione enter para continuar...');
+			readln();
 		end;
 		until not validar_n;//repetir hasta que sea un numero.
-
-	validar_cant(opc_u, '1','2');//se llama a la funcion para validar que el numero ingresado este en el rango.
+		validar_cant(opc_u, '1','2');//se llama a la funcion para validar que el numero ingresado este en el rango.
 	until validar_c;//repetir hasta que este en el rango.
-	reglas;
-	
-	tableros_resueltos;
-	tablero_usuario(tablero);
-	pistas;
-	repeat
-	tablero_usuario(tablero_u);
-	fila_columna;
-	agregar_valor;
-	
-	completo := EstaCompleto(tablero_u);
-
-    if completo then
-    begin
-		esCorrecto:= CompararTableros(tablero, tablero_u);
-	end;
-	
-	until esCorrecto and completo;
-	
-	
+	case opc_u of
+	'1':
+	begin
+		Datos_usuario;//se piden datos de usuario
+		reglas;//se muestran reglas
+		repeat
+			ClrScr;
+			tablero_usuario(tablero_u, tablero, pistas_i);//se muestra el tablero
+			fila_columna;//se le pide al usuario la fila y la columna del numero juno con su validacion
+			agregar_valor;//se le pide al usuario que ingrese el valor a agregar y se valida
+			fin:= TableroCompleto(tablero_u);//para validar si el tablero esta completo
+		until usuario_se_rinde or fin;//sale del bucle si elige rendirse o si el tablero esta lleno
+		if fin then
+		begin
+			ClrScr;
+			writeln('FELICIDADES, USTED HA COMPLETADO EL TABLERO!!');//si lo completa se muestra este mensaje
+			tablero_usuario(tablero, tablero, pistas_i);//se muestra el tablero resuelto en caso de rendirse
+			writeln('Presione enter para continuar...');
+			readln();
+		end;
+		end//del opc 1 
+	else 
+	begin
+		ClrScr;
+		tablero_usuario(tablero, tablero, pistas_i);//se muestra el tablero resuelto en caso de rendirse
+		writeln('Presione enter para continuar...');
+		readln();
+	end;//del else
+	end;//del case
+	writeln;
+	ClrScr;
+	writeln('GRACIAS POR JUGAR!!!');//Diosmio porfin terminé
 end.//principal
