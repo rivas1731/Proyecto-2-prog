@@ -763,7 +763,7 @@ var
 		write('Primero ingrese su nombre: ');
 		readln(nombre);
 		writeln;
-		write('Para continuar ingrese su Nikname de jugador: ');
+		write('Para continuar ingrese su Nickname de jugador: ');
 		readln(Nick);
 		validacion_n := false; 
 
