@@ -12,108 +12,107 @@ var
 	val_str, opc_u, opc_salir: string;
 	n_val, validar_n, validar_c, fin, usuario_se_rinde: boolean;
 	
-procedure tablero_usuario(tablero_u: matriz; tablero: matriz; pistas_i: matriz);
-var
-  i, j, k: integer;
-  hayError: boolean;
+	procedure tablero_usuario(tablero_u: matriz; tablero: matriz; pistas_i: matriz);
+	var
+		i, j, k: integer;
+		hayError: boolean;
 
-  validar_n: boolean;
-begin
-  writeln('Asi va el tablero.');
-  writeln();
-  textcolor(15);
-  writeln('   1 2 3  4 5 6  7 8 9');  // Imprime los números de las columnas
-  writeln('  ----------------------');
+		validar_n: boolean;
+	begin
+		writeln('Asi va el tablero.');
+		writeln();
+		textcolor(15);
+		writeln('   1 2 3  4 5 6  7 8 9');  // Imprime los números de las columnas
+		writeln('  ----------------------');
 
-  for i:= 1 to 9 do//para recorrer y mostrar el tablero
-  begin
-    textcolor(9);
-    write(i, ' ');  // Imprime el número de la fila
-    write('|');
-    for j:= 1 to 9 do 
-    begin
-      if tablero_u[i,j] = 0 then//en lugar de 0 escribe un espacio en blanco
-      begin
-        write('  ');
-      end
-      else
-      begin
-        if pistas_i[i,j] <> 0 then
-          textcolor(10)  // Cambia el color a verde si la celda contiene una pista
-        else if tablero_u[i,j] <> tablero[i,j] then
-        begin
-          textbackground(12);  // Cambia el color a rojo si el valor es incorrecto
-          textcolor(15);  // Cambia el color a blanco
-        end
-        else
-          textcolor(15);  // Cambia el color a blanco para los otros números
+		for i:= 1 to 9 do//para recorrer y mostrar el tablero
+		begin
+			textcolor(9);
+			write(i, ' ');  // Imprime el número de la fila
+			write('|');
+			for j:= 1 to 9 do 
+			begin
+			if tablero_u[i,j] = 0 then//en lugar de 0 escribe un espacio en blanco
+			begin
+				write('  ');
+			end
+			else
+			begin
+				if pistas_i[i,j] <> 0 then
+				textcolor(10)  // Cambia el color a verde si la celda contiene una pista
+			else if tablero_u[i,j] <> tablero[i,j] then
+			begin
+				textbackground(12);  // Cambia el color a rojo si el valor es incorrecto
+				textcolor(15);  // Cambia el color a blanco
+			end
+			else
+				textcolor(15);  // Cambia el color a blanco para los otros números
 
-        write(tablero_u[i,j], ' ');
-      end;
-      if (j mod 3 = 0) then//cada que pasen 3 posiciones imprime una barra para separar cuadrantes
-      begin
-        textcolor(15);
-        write('|');
-      end;
-      textbackground(black);
-    end;
-    writeln();
-    textcolor(9);
-    if (i mod 3 = 0 ) then//igual pero en las filas
-      textcolor(15);
-      writeln('  ----------------------');
-  end;
-  hayError := false;
-  for i := 1 to 9 do//para mostrar la opcion de rendirse solo cuando haya error en el tablero
-  begin
-    for j := 1 to 9 do
-    begin
-      if (tablero_u[i,j] <> 0) and (tablero_u[i,j] <> tablero[i,j]) then
-      begin
-        hayError := true;
-        break;
-      end;
-    end;
-    if hayError then break;
-  end;
+				write(tablero_u[i,j], ' ');
+			end;
+			if (j mod 3 = 0) then//cada que pasen 3 posiciones imprime una barra para separar cuadrantes
+			begin
+				textcolor(15);
+				write('|');
+			end;
+			textbackground(black);
+		end;
+		writeln();
+		textcolor(9);
+		if (i mod 3 = 0 ) then//igual pero en las filas
+			textcolor(15);
+			writeln('  ----------------------');
+		end;
+		hayError := false;
+		for i := 1 to 9 do//para mostrar la opcion de rendirse solo cuando haya error en el tablero
+		begin
+			for j := 1 to 9 do
+			begin
+				if (tablero_u[i,j] <> 0) and (tablero_u[i,j] <> tablero[i,j]) then
+				begin
+					hayError := true;
+					break;
+				end;
+			end;
+			if hayError then break;
+			end;
 
-  // Si hay un error, muestra el mensaje
-  if hayError then
-  begin
-    repeat
-      writeln('Desea rendirse?');
-      writeln('1. Si');
-      writeln('2. No');
-      readln(opc_salir);
-
-      validar_n := false;
-      for k := 1 to Length(opc_salir) do  // For para verificar que el valor ingresado sea un número
-      begin
-        if not (opc_salir[k] in ['0'..'9']) then
-        begin
-          validar_n := true;
-          break;
-        end;
-      end;
-      if validar_n then
-      begin
-		ClrScr;
-        writeln('La opcion ingresada no es valida, por favo ingrese una opcion valida.');
-        writeln('Presione enter para continuar');
-        readln();
-      end;
-    until not validar_n;
-    if (opc_salir < '1') or (opc_salir > '2') then
-    begin
-		ClrScr;
-		writeln('La opcion seleccionada no es valida. Por favor ingrese una opcion valida');
-		writeln('Presione enter para continuar');
-        readln();
-    end
-    else if (opc_salir = '1') then
-	usuario_se_rinde := true;
-  end;
-end;
+		// Si hay un error, muestra el mensaje
+		if hayError then
+		begin
+			repeat
+			repeat
+				writeln('Desea rendirse?');
+				writeln('1. Si');
+				writeln('2. No');
+				readln(opc_salir);
+				validar_n := false;
+				for k := 1 to Length(opc_salir) do  // For para verificar que el valor ingresado sea un número
+				begin
+					if not (opc_salir[k] in ['0'..'9']) then
+					begin
+					validar_n := true;
+					break;
+					end;
+				end;
+				if validar_n then
+				begin
+					writeln('La opcion ingresada no es valida, por favo ingrese una opcion valida.');
+					writeln('Presione enter para continuar');
+					readln();
+				end;
+			until not validar_n;
+			if (opc_salir < '1') or (opc_salir > '2') then
+			begin
+				writeln('La opcion seleccionada no es valida. Por favor ingrese una opcion valida');
+				writeln('Presione enter para continuar');
+				readln();
+			end
+			else if (opc_salir = '1') then
+				usuario_se_rinde := true;
+			until (opc_salir = '1') or (opc_salir = '2');
+		end;
+	end;//del procedimiento
 
 	
 	procedure tableros_resueltos;//para rellenar los tableros
